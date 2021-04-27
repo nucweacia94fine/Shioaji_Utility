@@ -11,7 +11,7 @@ def isexist(var_str): # only global varaible
         return True 
 
 def event_cb(resp_code: int, event_code: int, info: str, event: str):
-    global event_dict, record_filename
+    global event_dict
     event_dict = {
         'resp_code': resp_code,
         'event_code': event_code,
