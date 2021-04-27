@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-def isexist(var_str): # only global varaible
+def isexist(var_str): # only global variable
     try: 
         type(eval(var_str)) 
     except: 
