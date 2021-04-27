@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
 
+def isexist(var_str): # only global varaible
+    try: 
+        type(eval(var_str)) 
+    except: 
+        #print(f"{var_str} is NOT exist.")
+        return False
+    else: 
+        #print(f"{var_str} is exist.")
+        return True 
 
 def event_cb(resp_code: int, event_code: int, info: str, event: str):
     global event_dict, record_filename
@@ -10,7 +19,6 @@ def event_cb(resp_code: int, event_code: int, info: str, event: str):
         'event': event        
     }
     print(f'Response Code: {resp_code} | Event code: {event_code} | Info: {info} | Event: {event}')
-    f_rcd.close()
     
 api.quote.set_event_callback(event_cb)
 error_event_code = [1, 2, 3, 4, 5, 8, 9]
