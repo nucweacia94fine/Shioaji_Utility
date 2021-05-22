@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # holiday_list = holiday_list_gen(CSV_path)
     trade_determ, *_= trading_day_determination(datetime.date(2021,1,5))
     # trade_detem, CSV_path, holiday_list= trading_day_determination(datetime.date(2021,1,4))
-    print(f"Trade or not: {trade_detem}")
+    print(f"Trade or not: {trade_determ}")
     
     day_list = ((1,1), (1,4), (12,31), (2,5), (2,6), (2,16), (2,17), (4,1), (4,2), (4,5), (4,6), (10,11), (6,14), (3,1), (9,20))
     ans_list = (False, True, False, True, False, False, True, True, False, False, True, False, False, False, False)
