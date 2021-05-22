@@ -89,7 +89,7 @@ def holiday_list_gen(CSV_path: str, gen_year_AC: int =datetime.datetime.now().ye
         print(f"The path is not exist.")
         return None
     
-def trading_day_determinator(date_in = datetime.datetime.today().date()):
+def trading_day_determination(date_in = datetime.datetime.today().date()):
     year_AC = date_in.year     
     CSV_path = holiday_CSV_download(year_AC)
     holiday_list = holiday_list_gen(CSV_path, year_AC)
@@ -105,8 +105,8 @@ def trading_day_determinator(date_in = datetime.datetime.today().date()):
 if __name__ == "__main__":
     # CSV_path = holiday_CSV_download()
     # holiday_list = holiday_list_gen(CSV_path)
-    trade_determ, *_= trading_day_determinator(datetime.date(2021,1,5))
-    # trade_detem, CSV_path, holiday_list= trading_day_determinator(datetime.date(2021,1,4))
+    trade_determ, *_= trading_day_determination(datetime.date(2021,1,5))
+    # trade_detem, CSV_path, holiday_list= trading_day_determination(datetime.date(2021,1,4))
     print(f"Trade or not: {trade_detem}")
     
     day_list = ((1,1), (1,4), (12,31), (2,5), (2,6), (2,16), (2,17), (4,1), (4,2), (4,5), (4,6), (10,11), (6,14), (3,1), (9,20))
@@ -114,9 +114,9 @@ if __name__ == "__main__":
     for i in range(len(ans_list)):
         # print(day_list[i])
         # print(ans_list[i])
-        trade_determ = trading_day_determinator(datetime.date(2021,day_list[i][0],day_list[i][1]))[0]
+        trade_determ = trading_day_determination(datetime.date(2021,day_list[i][0],day_list[i][1]))[0]
         assert trade_determ == ans_list[i]
-    assert trading_day_determinator()[0] == False
-    assert trading_day_determinator(datetime.date(2020,1,2))[0] == True
-    assert trading_day_determinator(datetime.date(2019,1,4))[0] == True
+    assert trading_day_determination()[0] == False
+    assert trading_day_determination(datetime.date(2020,1,2))[0] == True
+    assert trading_day_determination(datetime.date(2019,1,4))[0] == True
     
