@@ -94,7 +94,7 @@ def trading_day_determination(date_in = datetime.datetime.today().date()):
     CSV_path = holiday_CSV_download(year_AC)
     holiday_list = holiday_list_gen(CSV_path, year_AC)
     # print(holiday_list)
-    if date_in.weekday() in (6, 7) or date_in in holiday_list:
+    if date_in.weekday() in (5, 6) or date_in in holiday_list: # weekday() output is 0~6
         print(f"{date_in} is the holiday. Market Closed.")
         return False, CSV_path, holiday_list
     else:
@@ -102,6 +102,28 @@ def trading_day_determination(date_in = datetime.datetime.today().date()):
         return True, CSV_path, holiday_list
     
 
+def trading_day_calendar(gen_year_AC: int =datetime.datetime.now().year):
+    Trade_or_not = {}
+    for d in date_range(datetime.date(gen_year_AC,1,1), datetime.date(gen_year_AC+1,1,1), timedelta(days=1)):
+        if d.day == 1:
+            if d.month > 1:
+                for i in range(31-len(temp)):
+                    temp += [np.nan]
+                Trade_or_not[d.month-2] = temp
+            temp = []            
+        temp += [trading_day_determination(d)[0]]
+    else:
+        for i in range(31-len(temp)):
+                    temp += [np.nan]
+        Trade_or_not[d.month-1] = temp
+        
+    
+    DF_calendar = pd.DataFrame(Trade_or_not, index=range(1,32))
+    return DF_calendar
+
+
+"""
+"""
 if __name__ == "__main__":
     # CSV_path = holiday_CSV_download()
     # holiday_list = holiday_list_gen(CSV_path)
@@ -119,4 +141,6 @@ if __name__ == "__main__":
     assert trading_day_determination()[0] == False
     assert trading_day_determination(datetime.date(2020,1,2))[0] == True
     assert trading_day_determination(datetime.date(2019,1,4))[0] == True
+    
+    DF_calendar = trading_day_calendar()
     
