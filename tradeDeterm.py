@@ -4,6 +4,21 @@ Created on Sat May 22 23:07:19 2021
 
 @author: NtRdeMtrX (nucweacia94fine)
 """
+"""
+
+[Importing and Using Example]
+
+from tradeDeterm import tradeDeterm
+
+trade_determ, *_= tradeDeterm() # Default date is today().date().
+print(f"Trade or not: {trade_determ}")
+
+trade_determ, *_= tradeDeterm(datetime.date(2021,1,5))
+print(f"Trade or not: {trade_determ}")
+
+
+"""
+
 
 import os
 import urllib
@@ -15,7 +30,9 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 
-def holiday_CSV_download(DL_year_AC: int =datetime.datetime.now().year):
+def holiday_CSV_download(DL_year_AC: int = None):
+    if DL_year_AC == None:
+        DL_year_AC = datetime.datetime.now().year
     DL_year = DL_year_AC - 1911
     DL_directory = './Holiday_Schedule_Download/'
     DL_filename = "holidaySchedule_" + str(DL_year) + ".csv"
@@ -48,7 +65,10 @@ def date_range(start:datetime ,stop:datetime ,step:timedelta):
         start += step
         
         
-def holiday_list_gen(CSV_path: str, gen_year_AC: int =datetime.datetime.now().year):
+def holiday_list_gen(CSV_path: str, gen_year_AC:int = None):
+    if gen_year_AC == None:
+        gen_year_AC = datetime.datetime.now().year  
+    
     if os.path.exists(CSV_path):        
         DF_temp = pd.read_csv(CSV_path, encoding=("big5"), header=1).iloc[:,:2]
         dict_temp = {}
@@ -89,7 +109,9 @@ def holiday_list_gen(CSV_path: str, gen_year_AC: int =datetime.datetime.now().ye
         print(f"The path is not exist.")
         return None
     
-def tradeDeterm(date_in = datetime.datetime.today().date()):
+def tradeDeterm(date_in = None):
+    if date_in == None:
+        date_in = datetime.datetime.today().date()
     year_AC = date_in.year     
     CSV_path = holiday_CSV_download(year_AC)
     holiday_list = holiday_list_gen(CSV_path, year_AC)
@@ -102,7 +124,9 @@ def tradeDeterm(date_in = datetime.datetime.today().date()):
         return True, CSV_path, holiday_list
     
 
-def trading_day_calendar(gen_year_AC: int =datetime.datetime.now().year):
+def trading_day_calendar(gen_year_AC:int = None):
+    if gen_year_AC == None:
+        gen_year_AC = datetime.datetime.now().year    
     Trade_or_not = {}
     for d in date_range(datetime.date(gen_year_AC,1,1), datetime.date(gen_year_AC+1,1,1), timedelta(days=1)):
         if d.day == 1:
