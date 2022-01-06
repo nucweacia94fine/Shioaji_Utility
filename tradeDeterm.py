@@ -30,10 +30,10 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 
-def holiday_CSV_download(DL_year_AC: int = None):
-    if DL_year_AC == None:
-        DL_year_AC = datetime.datetime.now().year
-    DL_year = DL_year_AC - 1911
+def holiday_CSV_download(DL_year_AD: int = None):
+    if DL_year_AD == None:
+        DL_year_AD = datetime.datetime.now().year
+    DL_year = DL_year_AD - 1911
     DL_directory = './Holiday_Schedule_Download/'
     DL_filename = "holidaySchedule_" + str(DL_year) + ".csv"
     DL_path = DL_directory + DL_filename
@@ -59,15 +59,15 @@ def holiday_CSV_download(DL_year_AC: int = None):
             urllib.request.urlretrieve(DL_url, DL_path)
     return DL_path
 
-def date_range(start:datetime ,stop:datetime ,step:timedelta):
+def date_range(start:datetime ,stop:datetime ,step:timedelta = timedelta(days=1)):
     while start < stop :        
         yield start
         start += step
         
         
-def holiday_list_gen(CSV_path: str, gen_year_AC:int = None):
-    if gen_year_AC == None:
-        gen_year_AC = datetime.datetime.now().year  
+def holiday_list_gen(CSV_path: str, gen_year_AD:int = None):
+    if gen_year_AD == None:
+        gen_year_AD = datetime.datetime.now().year  
     
     if os.path.exists(CSV_path):        
         DF_temp = pd.read_csv(CSV_path, encoding=("big5"), header=1).iloc[:,:2]
@@ -82,7 +82,7 @@ def holiday_list_gen(CSV_path: str, gen_year_AC:int = None):
         issue_list = tuple(dict_temp.values())
         date_list_temp = tuple(dict_temp.keys())
         # print(date_list_temp)
-        date_list = [ datetime.datetime.strptime(date, "%m月%d日").replace(year=gen_year_AC).date() for date in date_list_temp ]
+        date_list = [ datetime.datetime.strptime(date, "%m月%d日").replace(year=gen_year_AD).date() for date in date_list_temp ]
         # print(date_list)
         holiday_index = []
         for i in range(len(issue_list)):
@@ -109,42 +109,44 @@ def holiday_list_gen(CSV_path: str, gen_year_AC:int = None):
         print(f"The path is not exist.")
         return None
     
-def tradeDeterm(date_in = None):
+def tradeDeterm(date_in = None, verbose = True):
     if date_in == None:
         date_in = datetime.datetime.today().date()
-    year_AC = date_in.year     
-    CSV_path = holiday_CSV_download(year_AC)
-    holiday_list = holiday_list_gen(CSV_path, year_AC)
+    year_AD = date_in.year     
+    CSV_path = holiday_CSV_download(year_AD)
+    holiday_list = holiday_list_gen(CSV_path, year_AD)
     # print(holiday_list)
     if date_in.weekday() in (5, 6) or date_in in holiday_list: # weekday() output is 0~6
-        print(f"{date_in} is the holiday. Market Closed.")
+        if verbose:
+            print(f"{date_in} is the holiday. Market Closed.")
         return False, CSV_path, holiday_list
     else:
-        print(f"{date_in} is the trading day. Market open!")
+        if verbose:
+            print(f"{date_in} is the trading day. Market open!")
         return True, CSV_path, holiday_list
     
 
-def trading_day_calendar(gen_year_AC:int = None):
-    if gen_year_AC == None:
-        gen_year_AC = datetime.datetime.now().year    
+def trading_day_calendar(gen_year_AD:int = None, verbose = True):
+    if gen_year_AD == None:
+        gen_year_AD = datetime.datetime.now().year    
     Trade_or_not = {}
-    for d in date_range(datetime.date(gen_year_AC,1,1), datetime.date(gen_year_AC+1,1,1), timedelta(days=1)):
-        if d.day == 1:
-            if d.month > 1:
+    temp = []
+    for d in date_range(datetime.date(gen_year_AD,1,1), datetime.date(gen_year_AD+1,1,1), timedelta(days=1)):
+        if d.day == 1:       # Last Month Ending
+            if d.month > 1:  # Fill nan and reset temp
                 for i in range(31-len(temp)):
                     temp += [np.nan]
-                Trade_or_not[d.month-2] = temp
+                Trade_or_not[d.month-1] = temp
             temp = []            
-        temp += [tradeDeterm(d)[0]]
+        temp += [tradeDeterm(d, verbose=verbose)[0]]
     else:
         for i in range(31-len(temp)):
-                    temp += [np.nan]
-        Trade_or_not[d.month-1] = temp
+            temp += [np.nan]
+        Trade_or_not[d.month-0] = temp
         
     
     DF_calendar = pd.DataFrame(Trade_or_not, index=range(1,32))
     return DF_calendar
-
 
 """
 """
@@ -162,7 +164,7 @@ if __name__ == "__main__":
         # print(ans_list[i])
         trade_determ = tradeDeterm(datetime.date(2021,day_list[i][0],day_list[i][1]))[0]
         assert trade_determ == ans_list[i]
-    assert tradeDeterm()[0] == False
+    assert tradeDeterm()[0] == True
     assert tradeDeterm(datetime.date(2020,1,2))[0] == True
     assert tradeDeterm(datetime.date(2019,1,4))[0] == True
     
