@@ -176,8 +176,9 @@ def order_cb_read(order_list=None, deal_list=None):
 #########################################    Main Function Example    ############################################
 order_list = []
 deal_list = []       # Save dealed list for profit calculation
-trade_fut_last = None
-def main(test_mode = True): # True False
+if not "trade_fut_last" in globals():
+    trade_fut_last = None
+def main(test_mode = False): # True False
     global api, contract_mxf, order_cb_queue, record_filename, T_order, order_list, deal_list, trade_fut, trade_fut_last
         
     T_last = datetime.datetime.now()
@@ -217,19 +218,20 @@ def main(test_mode = True): # True False
     #### End of main function block
     
     #### Read the callback queue with while loop
-        T_read1 = datetime.datetime.now()
-        while len(order_cb_queue) > 0:
-            order_list, deal_list = order_cb_read(order_list, deal_list)                    
-        #### Only queue out for 1ms in 1 funtion loop.
-            T_read2 = datetime.datetime.now()
-            if T_read2-T_read1 >= datetime.timedelta(microseconds=1000):
-                print((T_read2-T_read1).microseconds)
-                break
-        ###### End of queue reading loop.    
-        if len(order_cb_queue) == 0 and "trade_fut" in globals() and trade_fut_last != trade_fut:
-            print("Order callback is empty.")
-            trade_fut_last = trade_fut
-            # break
+        if "trade_fut" in globals() and trade_fut_last != trade_fut:
+            T_read1 = datetime.datetime.now()
+            while len(order_cb_queue) > 0:
+                order_list, deal_list = order_cb_read(order_list, deal_list)                    
+            #### Only queue out for 1ms in 1 funtion loop.
+                T_read2 = datetime.datetime.now()
+                if T_read2-T_read1 >= datetime.timedelta(microseconds=1000):
+                    print((T_read2-T_read1).microseconds)
+                    break
+            ###### End of queue reading loop.    
+            if len(order_cb_queue) == 0:
+                print("Order callback is empty.")
+                trade_fut_last = trade_fut
+                # break
         
         T_last = T_now
     ###### End of main function loop.
