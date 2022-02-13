@@ -176,11 +176,19 @@ def order_cb_read(order_list=None, deal_list=None):
 #########################################    Main Function Example    ############################################
 order_list = []
 deal_list = []       # Save dealed list for profit calculation
-if not "trade_fut_last" in globals():
-    trade_fut_last = None
+ 
 def main(test_mode = False): # True False
     global api, contract_mxf, order_cb_queue, record_filename, T_order, order_list, deal_list, trade_fut, trade_fut_last
         
+    ### Order Deal Process Parameter
+    order_flag = 0
+    order_quantity = 0
+    deal_quantity = 0
+    Deal_price = 0
+    deal_list_len = len(deal_list)
+    if not "trade_fut_last" in globals():
+        trade_fut_last = None
+    
     T_last = datetime.datetime.now()
     while True:
     #### Main function block (Testing order)
@@ -219,19 +227,43 @@ def main(test_mode = False): # True False
     
     #### Read the callback queue with while loop
         if "trade_fut" in globals() and trade_fut_last != trade_fut:
+            if order_flag == 0:
+                order_quantity = trade_fut.order.quantity
+                order_flag = 1
+            
             T_read1 = datetime.datetime.now()
             while len(order_cb_queue) > 0:
-                order_list, deal_list = order_cb_read(order_list, deal_list)                    
+                order_list, deal_list = order_cb_read(order_list, deal_list)
+                if len(order_cb_queue) == 0:
+                    print("Order callback is empty.")                
             #### Only queue out for 1ms in 1 funtion loop.
                 T_read2 = datetime.datetime.now()
                 if T_read2-T_read1 >= datetime.timedelta(microseconds=1000):
                     print((T_read2-T_read1).microseconds)
                     break
             ###### End of queue reading loop.    
-            if len(order_cb_queue) == 0:
-                print("Order callback is empty.")
+            
                 trade_fut_last = trade_fut
                 # break
+            if len(deal_list) > 0 and len(deal_list) != deal_list_len:
+                f_rcd = open(record_filename, "a", encoding='utf-8')            
+                print(f"System Time: {datetime.datetime.now()}", file = f_rcd) 
+                print("{:^100}".format(f"Deal Status: [{deal_list[-1]['code']}], {deal_list[-1]['action']}, "\
+                                       f"[{deal_list[-1]['price']}]: {deal_list[-1]['quantity']} Volume."), file = f_rcd)
+                print('', file = f_rcd)
+                f_rcd.close()        
+                
+                Deal_price += deal_list[-1]["price"]*deal_list[-1]["quantity"]/order_quantity
+                deal_quantity += deal_list[-1]["quantity"]
+                deal_list_len = len(deal_list)
+                
+            if deal_quantity == order_quantity:
+                ### Reset 
+                trade_fut_last = trade_fut
+                order_quantity = 0
+                deal_quantity = 0
+                order_flag = 0
+                Deal_price = 0
         
         T_last = T_now
     ###### End of main function loop.
