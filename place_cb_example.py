@@ -122,12 +122,12 @@ def order_cb_read(order_list=None, deal_list=None):
     
     """
     [Orderstate type]
-    "TFTOrder": sj.constant.OrderState.TFTOrder     (現股委託)
-    "TFTDeal": sj.constant.OrderState.TFTDeal       (現股成交)
-    "FOrder": sj.constant.OrderState.FOrder         (期貨委託)
-    "FDeal": sj.constant.OrderState.FDeal           (期貨成交)
-    "Order": sj.constant.OrderState.Order           (其餘委託)
-    "Deal": sj.constant.OrderState.Deal             (其餘成交)            
+    "SORDER": sj.constant.OrderState.StockOrder     (現股委託)
+    "SDEAL": sj.constant.OrderState.StockDeal       (現股成交)
+    "FORDER": sj.constant.OrderState.FuturesOrder   (期貨委託)
+    "FDEAL": sj.constant.OrderState.FuturesDeal     (期貨成交)
+        "ORDER": sj.constant.OrderState.Order           (其餘委託)
+        "Deal": sj.constant.OrderState.Deal             (其餘成交)            
     """
     
     f_rcd = open(record_filename, "a", encoding='utf-8')    
